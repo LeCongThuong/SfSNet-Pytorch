@@ -34,9 +34,7 @@ def _test():
     for image_idx in tqdm(range(num_img)):
         # read image
         img_path = str(os.path.join(DATA_DIR, data_info.iloc[image_idx, 0]))
-        image = cv2.imread(img_path)
-        # crop face and generate mask of face
-        aligned, mask, im, landmark = mg.align(image, size=(M, M))[0]
+        im = cv2.imread(img_path)
         # resize
         im = cv2.resize(im, (M, M))
         # normalize to (0, 1.0)
@@ -61,6 +59,7 @@ def _test():
         nr = np.sqrt(np.sum(n_out2 ** 2, axis=2))  # nr=sqrt(sum(n_out2.^2,3))
         nr = np.expand_dims(nr, axis=2)
         n_out2 = n_out2 / np.repeat(nr, 3, axis=2)
+        n_out2 = cv2.resize(n_out2, (256, 256), interpolation=cv2.INTER_NEAREST)
         dest_path = os.path.join(DEST_DIR, data_info.iloc[image_idx, 0]).replace("crop.jpg", "predict.npy")
         Path(dest_path).parent.mkdir(parents=True, exist_ok=True)
         np.save(dest_path, n_out2)
